@@ -1,0 +1,152 @@
+---
+
+# 🧠Git 使用 SSH 推送项目到 GitHub 的完整流程教程（含踩坑与命令记录）
+
+在本文中，我将手把手教你如何使用 Git + SSH 将本地项目推送到 GitHub，适用于 Windows 系统、MSYS2（Git Bash）、新版 Git 默认分支 `main` 的情况，解决诸如远程地址冲突、权限失败、端口连接异常等问题。以下是我个人实践中完整的操作记录与经验总结。
+
+---
+
+## ✨适用场景
+
+* 初始化 Git 项目；
+* 配置 SSH 密钥推送；
+* GitHub 网络不通或被墙；
+* 出现 “Repository not found”、`403`、`Permission denied (publickey)` 错误；
+* 覆盖或同步远程仓库。
+
+---
+
+## 📁一、初始化 Git 仓库并首次提交
+
+```bash
+# 进入你的项目目录
+cd /d/网球/TrajectoryNet++/TrajectoryNet--
+
+# 初始化 Git 仓库
+git init
+
+# 添加所有文件
+git add *
+
+# 提交初始版本
+git commit -m "first commit"
+```
+
+---
+
+## 🔐二、生成 SSH 密钥并添加到 GitHub
+
+1. 生成 SSH 密钥（只需执行一次）：
+
+```bash
+ssh-keygen -t ed25519 -C "weiyanjun123456@163.com"
+```
+
+一路回车即可。默认会生成：
+
+* 私钥：`~/.ssh/id_ed25519`
+* 公钥：`~/.ssh/id_ed25519.pub`
+
+2. 打开 GitHub → Settings → SSH and GPG Keys → New SSH Key
+   将 `id_ed25519.pub` 的内容粘贴进去，格式如下：
+
+```
+ssh-ed25519 AAAAC3... weiyanjun123456@163.com
+```
+
+---
+
+## 🌐三、设置远程仓库地址为 SSH
+
+1. 确保你 GitHub 上已创建仓库：**TrajectoryNetPP**
+
+2. 配置远程地址为 SSH 形式：
+
+```bash
+git remote set-url origin git@github.com:Yinshuisiyuan23670/TrajectoryNetPP.git
+```
+
+3. 检查配置是否成功：
+
+```bash
+git remote -v
+```
+
+应看到：
+
+```
+origin  git@github.com:Yinshuisiyuan23670/TrajectoryNetPP.git (fetch)
+origin  git@github.com:Yinshuisiyuan23670/TrajectoryNetPP.git (push)
+```
+
+---
+
+## ✅四、验证 SSH 是否生效
+
+运行以下命令进行身份验证测试：
+
+```bash
+ssh -T git@github.com
+```
+
+如果成功，会输出：
+
+```
+Hi Yinshuisiyuan23670! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+---
+
+## ☁️五、推送到 GitHub（根据情况选择）
+
+### 情况一：强制推送（覆盖远程，适用于空仓库）
+
+```bash
+git push origin main --force
+```
+
+### 情况二：先拉取再推送（远程已有内容，建议使用）
+
+```bash
+git pull origin main --rebase
+git push origin main
+```
+
+---
+
+## 🔧常用命令小结
+
+| 命令                              | 作用            |
+| ------------------------------- | ------------- |
+| `git init`                      | 初始化 Git 仓库    |
+| `git add *`                     | 添加全部文件        |
+| `git commit -m "msg"`           | 提交            |
+| `git remote -v`                 | 查看远程地址        |
+| `ssh-keygen -t ed25519 -C "邮箱"` | 生成 SSH 密钥     |
+| `ssh -T git@github.com`         | 测试 SSH 登录     |
+| `git push origin main --force`  | 强制推送          |
+| `git pull origin main --rebase` | 拉取远程变更并重放本地提交 |
+
+---
+
+## 🧾我的 Git 历史操作记录
+
+以下是我完整的 Git 操作历史记录摘要，可作为快速参考：
+
+```bash
+git init
+git add *
+git commit -m "first commit"
+ssh-keygen -t ed25519 -C "weiyanjun123456@163.com"
+git remote set-url origin git@github.com:Yinshuisiyuan23670/TrajectoryNetPP.git
+ssh -T git@github.com
+git push origin main --force
+```
+
+---
+
+## 🧠结语
+
+如果你也在 GitHub 推送代码时遇到各种网络错误、权限问题、主分支冲突等问题，希望这篇文章能帮你彻底梳理清楚。欢迎点赞、收藏、评论交流！
+
+---
